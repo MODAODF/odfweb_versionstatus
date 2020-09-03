@@ -12,10 +12,10 @@
     <category>tools</category>
     <bugs>http://www.ossii.com.tw</bugs>
     <dependencies>
-        <nextcloud min-version="15" max-version="15"/>
+        <nextcloud min-version="15" max-version="16"/>
     </dependencies>
     <navigations>
-        <navigation>
+        <navigation role="admin">
             <name>Ndc Version Status</name>
             <route>ndcversionstatus.page.index</route>
         </navigation>
