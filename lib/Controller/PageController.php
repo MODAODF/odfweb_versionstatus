@@ -11,22 +11,18 @@ class PageController extends Controller {
 
 	/** @var IConfig */
 	private $config;
-	private $userId;
 
-	public function __construct($AppName, IConfig $config, IRequest $request, $UserId){
+	public function __construct($AppName, IConfig $config, IRequest $request){
 		parent::__construct($AppName, $request);
 		$this->appName = $AppName;
 		$this->config = $config;
-		$this->userId = $UserId;
 	}
 
 	/**
-	 *
 	 * @NoCSRFRequired
-	 * @UseSession
 	 */
 	public function index() {
-		// prepare odfweb/online version
+		// prepare odfweb&online version
 		$version_odfweb = file_get_contents(\OC::$SERVERROOT.'/version-odfweb.txt');
 		$wopi_url = $this->config->getAppValue('richdocuments', 'wopi_url');
 		$response = file_get_contents($wopi_url . "/hosting/version");

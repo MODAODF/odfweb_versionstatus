@@ -1,11 +1,7 @@
-<?php
-script('ndcversionstatus', 'script');
-// style('ndcversionstatus', 'style');
-?>
+<?php script('ndcversionstatus', 'script');?>
 
 <div id="app-content">
 	<div style="padding: 25px;">
-
 		<h2 style="display:inline-block;"><?php p($l->t('Ndc Version Status')) ?></h2>
 
 		<?php if($_['lastCheckTime']) { ?>
