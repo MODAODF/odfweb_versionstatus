@@ -6,9 +6,8 @@ date_default_timezone_set('Asia/Taipei');
 $appName = 'ndcversionstatus';
 
 
-
-$timeStr_lastCheck = \OC::$server->getSession()->get('ndcversionstatus_lastCheck'); // '2020-09-07 17:36:46'
-$timeStr_current = date("Y-m-d H:i:s");
+// $timeStr_lastCheck = \OC::$server->getSession()->get('ndcversionstatus_lastCheck'); // '2020-09-07 17:36:46'
+// $timeStr_current = date("Y-m-d H:i:s");
 
 // $date_session = '2020-09-07 17:36:46';
 // $date_now     = '2020-09-07 18:36:46';
