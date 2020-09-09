@@ -24,16 +24,34 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function index() {
-		// prepare odfweb&online version
+
+		// odfweb version
 		$version_odfweb = file_get_contents(\OC::$SERVERROOT.'/version-odfweb.txt');
-		$wopi_url = $this->config->getAppValue('richdocuments', 'wopi_url');
-		$response = file_get_contents($wopi_url . "/hosting/version");
-		if ($response) {
-			$obj = json_decode($response);
-			$version_online = $obj->OxOOL;
+		if ($version_odfweb) {
+			$versionParams['odfweb'] = preg_replace('/\r|\n/', '', $version_odfweb);
 		}
 
-		$redirectUrl = self::RedirectUrl."?online=$version_online&odfweb=$version_odfweb";
+		// online(NDCODFWEB) version
+		$wopi_url = $this->config->getAppValue('richdocuments', 'wopi_url');
+		if ($wopi_url) {
+			$response = file_get_contents($wopi_url . "/hosting/version");
+			if ($response) {
+				$obj = json_decode($response);
+				if ($versionStr = $obj->loolserver->Version ?? $obj->OxOOL) {
+					// remove '-x' in version string
+					$pieces = explode("-", $versionStr);
+					$versionParams['online'] = $pieces[0];
+				}
+			}
+		}
+
+		$redirectUrl = self::RedirectUrl. '?';
+		foreach($versionParams as $key => $val) {
+			// redirect url with params
+			$redirectUrl .= $key . '=' . $val . '&';
+			// parameters for TemplateResponse
+			$parameters[$key] = $val;
+		}
 
 		$headers = @get_headers($redirectUrl);
 		if($headers[0] == 'HTTP/1.1 200 OK') {
@@ -41,11 +59,7 @@ class PageController extends Controller {
 			return new RedirectResponse($redirectUrl);
 		} else {
 			// if redirect not work
-			$parameters = array(
-				'redirect_url'   => $redirectUrl,
-				'version_online' => $version_online,
-				'version_odfweb' => $version_odfweb,
-			);
+			$parameters['redirect_url'] = $redirectUrl;
 
 			$lastCheckTime = $this->config->getAppValue($this->appName, 'lastCheckTime');
 			if ($lastCheckTime && !empty($lastCheckTime)) {

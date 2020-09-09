@@ -6,6 +6,7 @@ OC.L10N.register(
     "Version Infos" : "【政府 ODF Web 文件應用元件】目前使用版本",
     "【NDCODFWEB】" : "編輯器端",
     "【Odfweb】"    : "儲存端",
-    "Check" : "檢查"
+    "Check" : "檢查",
+    "Fail to get version." : "無法取得版本"
 },
 "nplurals=1; plural=0;");

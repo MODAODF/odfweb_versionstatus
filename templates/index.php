@@ -11,10 +11,10 @@
 		<h3><?php p($l->t('Version Infos')) ?></h3>
 		<ul style="list-style: disc; padding-left: 20px; font-size:15px;">
 			<li>
-				<b><?php p($l->t('【NDCODFWEB】'))?></b> - <span><?php p($_['version_online']) ?></span>
+				<b><?php p($l->t('【NDCODFWEB】'))?></b> - <span><?php p($_['online'] ?? $l->t('Fail to get version.') )  ?></span>
 			</li>
 			<li>
-				<b><?php p($l->t('【Odfweb】'))?></b> - <span><?php p($_['version_odfweb']) ?></span>
+				<b><?php p($l->t('【Odfweb】'))?></b> - <span><?php p($_['odfweb'] ?? $l->t('Fail to get version.') )?></span>
 			</li>
 		</ul>
 		<br>
