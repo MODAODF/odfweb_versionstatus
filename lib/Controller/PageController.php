@@ -12,6 +12,8 @@ class PageController extends Controller {
 	/** @var IConfig */
 	private $config;
 
+	const RedirectUrl = "http://192.168.3.194/Odf.Nat/versionStatus/update.php"; // https://odf.nat.gov.tw/versionStatus/update.php
+
 	public function __construct($AppName, IConfig $config, IRequest $request){
 		parent::__construct($AppName, $request);
 		$this->appName = $AppName;
@@ -31,8 +33,7 @@ class PageController extends Controller {
 			$version_online = $obj->OxOOL;
 		}
 
-		$redirectUrl = "http://192.168.3.194/Odf.Nat/update.php"; // https://odf.nat.gov.tw/update.html
-		$redirectUrl .= "?online=$version_online&odfweb=$version_odfweb";
+		$redirectUrl = self::RedirectUrl."?online=$version_online&odfweb=$version_odfweb";
 
 		$headers = @get_headers($redirectUrl);
 		if($headers[0] == 'HTTP/1.1 200 OK') {
