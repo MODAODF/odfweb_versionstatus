@@ -8,8 +8,8 @@ date_default_timezone_set('Asia/Taipei');
 $appConfigs = \OC::$server->getAppConfig()->getValues(false, 'lastCheckTime');
 $timeStr_lastCheck = $appConfigs['ndcversionstatus'];
 $timeStr_current = date("Y-m-d H:i:s");
-$expSec = 60; // 1 min
+$expSec = 7*24*60*60; // 7 days
 
 // Diff timestamp
 $needAlert = strtotime($timeStr_lastCheck) + $expSec < strtotime($timeStr_current) ? true : false;
-if($needAlert)  Util::addScript('ndcversionstatus', 'alertIcon');
+if($needAlert) Util::addScript('ndcversionstatus', 'alertIcon');

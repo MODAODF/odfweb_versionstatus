@@ -12,7 +12,7 @@ class PageController extends Controller {
 	/** @var IConfig */
 	private $config;
 
-	const RedirectUrl = "http://192.168.3.194/Odf.Nat/versionStatus/update.php"; // https://odf.nat.gov.tw/versionStatus/update.php
+	const RedirectUrl = "https://odf.nat.gov.tw/versionStatus/update.php";
 
 	public function __construct($AppName, IConfig $config, IRequest $request){
 		parent::__construct($AppName, $request);
