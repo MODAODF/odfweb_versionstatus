@@ -23,20 +23,20 @@ class PageController extends Controller {
 		$this->appName = $AppName;
 		$this->config = $config;
 		$this->urlGenerator = $urlGenerator;
+
+		$this->versionParams = null;
+		$this->getOdfwebVersion();
+		$this->getNdcodfwebVersion();
 	}
 
-	/**
-	 * @NoCSRFRequired
-	 */
-	public function index() {
-
-		// odfweb version
+	private function getOdfwebVersion() {
 		$version_odfweb = file_get_contents(\OC::$SERVERROOT.'/version-odfweb.txt');
 		if ($version_odfweb) {
-			$versionParams['odfweb'] = preg_replace('/\r|\n/', '', $version_odfweb);
+			$this->versionParams['odfweb'] = preg_replace('/\r|\n/', '', $version_odfweb);
 		}
+	}
 
-		// online(NDCODFWEB) version
+	private function getNdcodfwebVersion() {
 		$wopi_url = $this->config->getAppValue('richdocuments', 'wopi_url');
 		if ($wopi_url) {
 			$response = file_get_contents($wopi_url . "/hosting/version");
@@ -45,17 +45,29 @@ class PageController extends Controller {
 				if ($versionStr = $obj->loolserver->Version ?? $obj->OxOOL) {
 					// remove '-x' in version string
 					$pieces = explode("-", $versionStr);
-					$versionParams['online'] = $pieces[0];
+					$this->versionParams['ndcodfweb'] = $pieces[0];
 				}
 			}
 		}
+	}
+
+	/**
+	 * @NoCSRFRequired
+	 *
+	 * @param srting $result Get version result from odf.nat.gov.tw
+	 */
+	public function index() {
 
 		// Prepare parameters for TemplateResponse
-		foreach($versionParams as $key => $val) {
-			$parameters[$key] = $val;
+		if (!is_null($this->versionParams)) {
+			foreach($this->versionParams as $key => $val) {
+				$parameters[$key] = $val;
+			}
+			$parameters['showButton'] = true;
 		}
+
 		$parameters['redirectUrl'] = self::RedirectUrl;
-		$parameters['odfwebReferrer'] = $this->urlGenerator->getAbsoluteURL('index.php/apps/ndcversionstatus');
+		$parameters['odfwebReferrer'] = $this->urlGenerator->getAbsoluteURL('index.php/apps/ndcversionstatus/result/');
 
 		$lastCheckTime = $this->config->getAppValue($this->appName, 'lastCheckTime');
 		if ($lastCheckTime && !empty($lastCheckTime)) {
@@ -64,6 +76,27 @@ class PageController extends Controller {
 
 		return new TemplateResponse('ndcversionstatus', 'index', $parameters);
 	}
+
+	/**
+	 * @NoCSRFRequired
+	 *
+	 * @param srting $updateInfo Get version result from odf.nat.gov.tw
+	 */
+	public function result($updateInfo) {
+
+		$pieces = explode("&", $updateInfo);
+		foreach($pieces as $piece) {
+			$val = explode("=", $piece);
+			$name = $val[0];
+			if($name) {
+				$needUpdate = $val[1] === '1' ? true : false;
+				$parameters[$name] = $needUpdate;
+			}
+		}
+
+		return new TemplateResponse('ndcversionstatus', 'result', $parameters);
+	}
+
 
 	/**
 	 * Set appconfig lastCheckTime

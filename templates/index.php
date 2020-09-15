@@ -11,7 +11,7 @@
 		<h3><?php p($l->t('Version Infos')) ?></h3>
 		<ul style="list-style: disc; padding-left: 20px; font-size:15px;">
 			<li>
-				<b><?php p($l->t('【NDCODFWEB】'))?></b> - <span><?php p($_['online'] ?? $l->t('Fail to get version.') )  ?></span>
+				<b><?php p($l->t('【NDCODFWEB】'))?></b> - <span><?php p($_['ndcodfweb'] ?? $l->t('Fail to get version.') )  ?></span>
 			</li>
 			<li>
 				<b><?php p($l->t('【Odfweb】'))?></b> - <span><?php p($_['odfweb'] ?? $l->t('Fail to get version.') )?></span>
@@ -20,11 +20,13 @@
 		<br>
 
 		<form id="hiddenForm" method="post" action="<?php p($_['redirectUrl']) ?>" >
-			<input type="hidden" name="online" value="<?php p($_['online']) ?>" />
+			<input type="hidden" name="ndcodfweb" value="<?php p($_['ndcodfweb']) ?>" />
 			<input type="hidden" name="odfweb" value="<?php p($_['odfweb']) ?>" />
 			<input type="hidden" name="odfwebReferrer" value="<?php p($_['odfwebReferrer'])?>" />
 		</form>
 
+		<?php if($_['showButton']){ ?>
 		<button url="<?php p($_['redirect_url']) ?>" id="checkBtn"><?php p($l->t('Check')) ?></button>
+		<?php }?>
 	</div>
 </div>

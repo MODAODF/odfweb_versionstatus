@@ -2,9 +2,12 @@
     "Ndc Version Status" : "版本檢查",
     "Last Time" : "上次檢查日期",
     "Version Infos" : "【政府 ODF Web 文件應用元件】目前使用版本",
+    "Version Check Result" : "【政府 ODF Web 文件應用元件】檢查結果",
     "【NDCODFWEB】" : "編輯器端",
     "【Odfweb】"    : "儲存端",
     "Check" : "檢查",
-    "Fail to get version." : "無法取得版本"
+    "Fail to get version." : "無法取得版本",
+    "New version available, please update." : "有新版本，請更新。",
+    "Using latest version" : "已經是最新版本，不需要更新。"
     },"pluralForm" :"nplurals=1; plural=0;"
 }
