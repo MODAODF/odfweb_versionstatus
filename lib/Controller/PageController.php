@@ -1,6 +1,7 @@
 <?php
 namespace OCA\NdcVersionStatus\Controller;
 
+use OCP\IURLGenerator;
 use OCP\IRequest;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Http\RedirectResponse;
@@ -12,12 +13,16 @@ class PageController extends Controller {
 	/** @var IConfig */
 	private $config;
 
+	/** @var IURLGenerator */
+	private $urlGenerator;
+
 	const RedirectUrl = "https://odf.nat.gov.tw/versionStatus/update.php";
 
-	public function __construct($AppName, IConfig $config, IRequest $request){
+	public function __construct($AppName, IConfig $config, IRequest $request, IURLGenerator $urlGenerator){
 		parent::__construct($AppName, $request);
 		$this->appName = $AppName;
 		$this->config = $config;
+		$this->urlGenerator = $urlGenerator;
 	}
 
 	/**
@@ -45,29 +50,19 @@ class PageController extends Controller {
 			}
 		}
 
-		$redirectUrl = self::RedirectUrl. '?';
+		// Prepare parameters for TemplateResponse
 		foreach($versionParams as $key => $val) {
-			// redirect url with params
-			$redirectUrl .= $key . '=' . $val . '&';
-			// parameters for TemplateResponse
 			$parameters[$key] = $val;
 		}
+		$parameters['redirectUrl'] = self::RedirectUrl;
+		$parameters['odfwebReferrer'] = $this->urlGenerator->getAbsoluteURL('index.php/apps/ndcversionstatus');
 
-		$headers = @get_headers($redirectUrl);
-		if($headers[0] == 'HTTP/1.1 200 OK') {
-			$this->setTimeConfig();
-			return new RedirectResponse($redirectUrl);
-		} else {
-			// if redirect not work
-			$parameters['redirect_url'] = $redirectUrl;
-
-			$lastCheckTime = $this->config->getAppValue($this->appName, 'lastCheckTime');
-			if ($lastCheckTime && !empty($lastCheckTime)) {
-				$parameters['lastCheckTime'] = $lastCheckTime;
-			}
-
-			return new TemplateResponse('ndcversionstatus', 'index', $parameters);  // templates/index.php
+		$lastCheckTime = $this->config->getAppValue($this->appName, 'lastCheckTime');
+		if ($lastCheckTime && !empty($lastCheckTime)) {
+			$parameters['lastCheckTime'] = $lastCheckTime;
 		}
+
+		return new TemplateResponse('ndcversionstatus', 'index', $parameters);
 	}
 
 	/**

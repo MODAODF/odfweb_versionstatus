@@ -4,7 +4,8 @@ $(document).on("click", "button#checkBtn", function (e) {
         url: OC.generateUrl('/apps/ndcversionstatus/setTime'),
         type: 'GET'
     }).always(function() {
-        var redirect_url = $(e.target).attr('url')
-        window.open(redirect_url, "_self")
+        var f = document.getElementById('hiddenForm');
+        window.open('', '_self');
+        f.submit();
     })
  });

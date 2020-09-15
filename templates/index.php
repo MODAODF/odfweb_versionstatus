@@ -18,6 +18,13 @@
 			</li>
 		</ul>
 		<br>
+
+		<form id="hiddenForm" method="post" action="<?php p($_['redirectUrl']) ?>" >
+			<input type="hidden" name="online" value="<?php p($_['online']) ?>" />
+			<input type="hidden" name="odfweb" value="<?php p($_['odfweb']) ?>" />
+			<input type="hidden" name="odfwebReferrer" value="<?php p($_['odfwebReferrer'])?>" />
+		</form>
+
 		<button url="<?php p($_['redirect_url']) ?>" id="checkBtn"><?php p($l->t('Check')) ?></button>
 	</div>
 </div>
