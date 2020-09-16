@@ -53,8 +53,6 @@ class PageController extends Controller {
 
 	/**
 	 * @NoCSRFRequired
-	 *
-	 * @param srting $result Get version result from odf.nat.gov.tw
 	 */
 	public function index() {
 
@@ -80,10 +78,9 @@ class PageController extends Controller {
 	/**
 	 * @NoCSRFRequired
 	 *
-	 * @param srting $updateInfo Get version result from odf.nat.gov.tw
+	 * @param srting $updateInfo Get version result from odf.nat.gov.tw ex: odfweb=0&ndcodfweb=1
 	 */
 	public function result($updateInfo) {
-
 		$pieces = explode("&", $updateInfo);
 		foreach($pieces as $piece) {
 			$val = explode("=", $piece);
@@ -96,7 +93,6 @@ class PageController extends Controller {
 
 		return new TemplateResponse('ndcversionstatus', 'result', $parameters);
 	}
-
 
 	/**
 	 * Set appconfig lastCheckTime
