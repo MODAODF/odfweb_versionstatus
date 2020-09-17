@@ -1,4 +1,4 @@
-<?php script('ndcversionstatus', 'script');?>
+<?php script('ndcversionstatus', 'index');?>
 
 <div id="app-content">
 	<div style="padding: 25px;">
