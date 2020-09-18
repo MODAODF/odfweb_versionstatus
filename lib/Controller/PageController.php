@@ -81,6 +81,10 @@ class PageController extends Controller {
 	 * @param srting $updateInfo Get version result from odf.nat.gov.tw ex: odfweb=0&ndcodfweb=1
 	 */
 	public function result($updateInfo) {
+		if (!$updateInfo) {
+			return new RedirectResponse($this->urlGenerator->linkToRoute('ndcversionstatus.page.index'));
+		}
+
 		$pieces = explode("&", $updateInfo);
 		foreach($pieces as $piece) {
 			$val = explode("=", $piece);
