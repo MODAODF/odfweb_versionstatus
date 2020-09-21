@@ -10,6 +10,7 @@ use OCP\AppFramework\Controller;
 use OCP\IConfig;
 use OCP\IUserManager;
 use OCP\IGroupManager;
+use OCP\IL10N;
 use OCP\Mail\IMailer;
 
 class PageController extends Controller {
@@ -29,6 +30,9 @@ class PageController extends Controller {
 	/** @var IUserManager */
 	private $userManager;
 
+	/** @var IL10N */
+	private $l10n;
+
 	const RedirectUrl = "https://odf.nat.gov.tw/versionStatus/update.php";
 
 	public function __construct($AppName,
@@ -37,6 +41,7 @@ class PageController extends Controller {
 								IURLGenerator $urlGenerator,
 								IUserManager $userManager,
 								IGroupManager $groupManager,
+								IL10N $l10n,
 								IMailer $mailer){
 		parent::__construct($AppName, $request);
 		$this->appName = $AppName;
@@ -45,6 +50,7 @@ class PageController extends Controller {
 		$this->userManager = $userManager;
 		$this->groupManager = $groupManager;
 		$this->mailer = $mailer;
+		$this->l10n = $l10n;
 
 		$this->versionParams = null;
 		$this->getOdfwebVersion();
@@ -147,36 +153,38 @@ class PageController extends Controller {
 			$user = $this->userManager->get($uid); // IUser
 			$email = $user->getEMailAddress();
 
-			if (!empty($email)) {
-				try { // send mail
-					$displayName = $user->getDisplayName();
-
-					$template = $this->mailer->createEMailTemplate('ndcversionstatus.resultMail', [
-						'displayname' => $displayName,
-					]);
-
-					$template->setSubject("[$odfwebName] 版本檢查通知");
-					$template->addHeader();
-					$template->addHeading('版本檢查');
-					$body = '<h4><u>' . $odfwebName . ' 檢查結果如下</u><h4>' . $content;
-					$template->addBodyText($body, $body);
-					$template->addFooter();
-
-					$message = $this->mailer->createMessage();
-					$message->setTo([$email => $displayName]);
-					$message->useTemplate($template);
-					$errors = $this->mailer->send($message);
-					if (!empty($errors)) {
-						throw new \RuntimeException('Email could not be sent. Check your mail server log');
-					}
-
-					$sendInfos[$uid]['result'] = true;
-					$sendInfos[$uid]['message'] = 'Email sent.';
-
-				} catch (\Exception $e) {
-					$sendInfos[$uid]['result'] = false;
-					$sendInfos[$uid]['message'] = $e->getMessage();
+			// send mail
+			try {
+				if (empty($email)) {
+					throw new \RuntimeException($this->l10n->t('Email unset.'));
 				}
+
+				$displayName = $user->getDisplayName();
+				$template = $this->mailer->createEMailTemplate('ndcversionstatus.resultMail', [
+					'displayname' => $displayName,
+				]);
+
+				$template->setSubject("[$odfwebName] 版本檢查通知");
+				$template->addHeader();
+				$template->addHeading('版本檢查');
+				$body = '<h4><u>' . $odfwebName . ' 檢查結果如下</u><h4>' . $content;
+				$template->addBodyText($body, $body);
+				$template->addFooter();
+
+				$message = $this->mailer->createMessage();
+				$message->setTo([$email => $displayName]);
+				$message->useTemplate($template);
+				$errors = $this->mailer->send($message);
+				if (!empty($errors)) {
+					throw new \RuntimeException($this->l10n->t('Email could not be sent. Check your mail server log.'));
+				}
+
+				$sendInfos[$uid]['result'] = true;
+				$sendInfos[$uid]['message'] = $this->l10n->t('Email sent.');
+
+			} catch (\Exception $e) {
+				$sendInfos[$uid]['result'] = false;
+				$sendInfos[$uid]['message'] = $e->getMessage();
 			}
 		}
 
@@ -188,7 +196,7 @@ class PageController extends Controller {
 		if ($sentCount > 0) {
 			return new DataResponse([
 				'data' => [
-					'message' => $sentCount . ' email sent.',
+					'message' => $this->l10n->t('%s email sent.', [$sentCount]),
 					'infos' => $sendInfos
 				],
 				'result' => true
@@ -196,7 +204,7 @@ class PageController extends Controller {
 		} else {
 			return new DataResponse([
 				'data' => [
-					'message' => 'A problem occurred while sending the email. Please revise your settings',
+					'message' => $this->l10n->t('A problem occurred while sending the email. Please revise your settings.'),
 					'infos' => $sendInfos
 				],
 				'result' => false

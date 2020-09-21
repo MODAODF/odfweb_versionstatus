@@ -19,7 +19,7 @@ $(document).on("click", "#sendemail", function (e) {
         msgResponse.data.message = resp.data.message;
     })
     .fail(function (e) {
-        msgResponse.data.message = '無法寄出郵件';
+        msgResponse.data.message = t('ndcversionstatus', 'Unable to send email.');
         console.error(e);
     })
     .always(function() {
