@@ -8,7 +8,8 @@ use OCP\AppFramework\Http\RedirectResponse;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Controller;
 use OCP\IConfig;
-use OCP\IUserSession;
+use OCP\IUserManager;
+use OCP\IGroupManager;
 use OCP\Mail\IMailer;
 
 class PageController extends Controller {
@@ -19,11 +20,14 @@ class PageController extends Controller {
 	/** @var IURLGenerator */
 	private $urlGenerator;
 
-	/** @var IUserSession */
-	private $userSession;
-
 	/** @var IMailer */
 	private $mailer;
+
+	/** @var IGroupManager */
+	private $groupManager;
+
+	/** @var IUserManager */
+	private $userManager;
 
 	const RedirectUrl = "https://odf.nat.gov.tw/versionStatus/update.php";
 
@@ -31,13 +35,15 @@ class PageController extends Controller {
 								IConfig $config,
 								IRequest $request,
 								IURLGenerator $urlGenerator,
-								IUserSession $userSession,
+								IUserManager $userManager,
+								IGroupManager $groupManager,
 								IMailer $mailer){
 		parent::__construct($AppName, $request);
 		$this->appName = $AppName;
 		$this->config = $config;
 		$this->urlGenerator = $urlGenerator;
-		$this->userSession = $userSession;
+		$this->userManager = $userManager;
+		$this->groupManager = $groupManager;
 		$this->mailer = $mailer;
 
 		$this->versionParams = null;
@@ -133,46 +139,68 @@ class PageController extends Controller {
 		$ocDefaults = new \OC_Defaults;
 		$odfwebName = $this->config->getAppValue('theming', 'name', $ocDefaults->getTitle());
 
-		$user = $this->userSession->getUser();
-		$email = $user->getEMailAddress();
-		if (!empty($email)) {
-			try {
-				$displayName = $user->getDisplayName();
+		$groupId = 'admin';
+		$groupUsers = $this->groupManager->get($groupId)->getUsers();
 
-				$template = $this->mailer->createEMailTemplate('ndcversionstatus.resultMail', [
-					'displayname' => $displayName,
-				]);
+		foreach ($groupUsers as $u) {
+			$uid = $u->getUid();
+			$user = $this->userManager->get($uid); // IUser
+			$email = $user->getEMailAddress();
 
-				$template->setSubject("[$odfwebName] 版本檢查通知");
-				$template->addHeader();
-				$template->addHeading('版本檢查');
-				$body = '<h4><u>' . $odfwebName . ' 檢查結果如下</u><h4>' . $content;
-				$template->addBodyText($body, $body);
-				$template->addFooter();
+			if (!empty($email)) {
+				try { // send mail
+					$displayName = $user->getDisplayName();
 
-				$message = $this->mailer->createMessage();
-				$message->setTo([$email => $displayName]);
-				$message->useTemplate($template);
-				$errors = $this->mailer->send($message);
-				if (!empty($errors)) {
-					throw new \RuntimeException('Email could not be sent. Check your mail server log');
+					$template = $this->mailer->createEMailTemplate('ndcversionstatus.resultMail', [
+						'displayname' => $displayName,
+					]);
+
+					$template->setSubject("[$odfwebName] 版本檢查通知");
+					$template->addHeader();
+					$template->addHeading('版本檢查');
+					$body = '<h4><u>' . $odfwebName . ' 檢查結果如下</u><h4>' . $content;
+					$template->addBodyText($body, $body);
+					$template->addFooter();
+
+					$message = $this->mailer->createMessage();
+					$message->setTo([$email => $displayName]);
+					$message->useTemplate($template);
+					$errors = $this->mailer->send($message);
+					if (!empty($errors)) {
+						throw new \RuntimeException('Email could not be sent. Check your mail server log');
+					}
+
+					$sendInfos[$uid]['result'] = true;
+					$sendInfos[$uid]['message'] = 'Email sent.';
+
+				} catch (\Exception $e) {
+					$sendInfos[$uid]['result'] = false;
+					$sendInfos[$uid]['message'] = $e->getMessage();
 				}
-
-				return new DataResponse([
-					'data' => [ 'message' => 'Email Send!'],
-					'result' => true,
-				]);
-
-			} catch (\Exception $e) {
-				return new DataResponse([
-					'data' => [ 'message' => 'A problem occurred while sending the email. Please revise your settings. (Error: %s)', [$e->getMessage()]],
-					'result' => false,
-				]);
 			}
 		}
-		return new DataResponse([
-			'data' => [ 'message' => 'You need to set your user email before being able to send test emails.'],
-			'result' => false
-		]);
+
+		$sentCount = 0;
+		foreach($sendInfos as $uid => $infos) {
+			if($infos['result']) $sentCount ++;
+		}
+
+		if ($sentCount > 0) {
+			return new DataResponse([
+				'data' => [
+					'message' => $sentCount . ' email sent.',
+					'infos' => $sendInfos
+				],
+				'result' => true
+			]);
+		} else {
+			return new DataResponse([
+				'data' => [
+					'message' => 'A problem occurred while sending the email. Please revise your settings',
+					'infos' => $sendInfos
+				],
+				'result' => false
+			]);
+		}
 	}
 }
