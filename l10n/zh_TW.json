@@ -1,8 +1,8 @@
 { "translations": {
     "Ndc Version Status" : "版本檢查",
     "Last Time" : "上次檢查日期",
-    "Version Infos" : "【政府 ODF Web 文件應用元件】目前使用版本",
-    "Version Check Result" : "【政府 ODF Web 文件應用元件】檢查結果",
+    "Version Infos" : "目前使用版本",
+    "Version Check Result" : "檢查結果如下",
     "【NDCODFWEB】" : "編輯器端",
     "【Odfweb】"    : "儲存端",
     "Check" : "檢查",

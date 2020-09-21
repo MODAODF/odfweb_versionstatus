@@ -1,6 +1,6 @@
-<?php script('ndcversionstatus', 'result');?>
+<?php script('ndcversionstatus', 'result'); ?>
 
-<div id="app-content">
+<div id="ndcversionstatus">
 	<div style="padding: 25px;">
 		<h2 style="display:inline-block;"><?php p($l->t('Ndc Version Status')) ?></h2>
 
@@ -25,12 +25,12 @@
 			</li>
 			<?php }?>
 
-			<br />
-			<em><?php p($l->t('Email members of admin group about check result.')); ?></em>
-			<input type="submit" name="sendemail" id="sendemail" value="<?php p($l->t('Send email')); ?>"/>
-			<span id="sendmail_msg" class="msg"></span>
-
 		</ul>
+
+		<br />
+		<em><?php p($l->t('Email members of admin group about check result.')); ?></em>
+		<input type="submit" name="sendemail" id="sendemail" value="<?php p($l->t('Send email')); ?>"/>
+		<span class="msg"></span>
 
 	</div>
 </div>

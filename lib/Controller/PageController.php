@@ -5,8 +5,11 @@ use OCP\IURLGenerator;
 use OCP\IRequest;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Http\RedirectResponse;
+use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Controller;
 use OCP\IConfig;
+use OCP\IUserSession;
+use OCP\Mail\IMailer;
 
 class PageController extends Controller {
 
@@ -16,13 +19,26 @@ class PageController extends Controller {
 	/** @var IURLGenerator */
 	private $urlGenerator;
 
+	/** @var IUserSession */
+	private $userSession;
+
+	/** @var IMailer */
+	private $mailer;
+
 	const RedirectUrl = "https://odf.nat.gov.tw/versionStatus/update.php";
 
-	public function __construct($AppName, IConfig $config, IRequest $request, IURLGenerator $urlGenerator){
+	public function __construct($AppName,
+								IConfig $config,
+								IRequest $request,
+								IURLGenerator $urlGenerator,
+								IUserSession $userSession,
+								IMailer $mailer){
 		parent::__construct($AppName, $request);
 		$this->appName = $AppName;
 		$this->config = $config;
 		$this->urlGenerator = $urlGenerator;
+		$this->userSession = $userSession;
+		$this->mailer = $mailer;
 
 		$this->versionParams = null;
 		$this->getOdfwebVersion();
@@ -104,5 +120,59 @@ class PageController extends Controller {
 	public function setTimeConfig() {
 		date_default_timezone_set('Asia/Taipei');
 		$this->config->setAppValue($this->appName, 'lastCheckTime', date("Y-m-d H:i:s"));
+	}
+
+	/**
+	 * @return DataResponse
+	 *
+	 * @param array $data
+	 */
+	public function sendMail($content) {
+
+		// odfweb name
+		$ocDefaults = new \OC_Defaults;
+		$odfwebName = $this->config->getAppValue('theming', 'name', $ocDefaults->getTitle());
+
+		$user = $this->userSession->getUser();
+		$email = $user->getEMailAddress();
+		if (!empty($email)) {
+			try {
+				$displayName = $user->getDisplayName();
+
+				$template = $this->mailer->createEMailTemplate('ndcversionstatus.resultMail', [
+					'displayname' => $displayName,
+				]);
+
+				$template->setSubject("[$odfwebName] 版本檢查通知");
+				$template->addHeader();
+				$template->addHeading('版本檢查');
+				$body = '<h4><u>' . $odfwebName . ' 檢查結果如下</u><h4>' . $content;
+				$template->addBodyText($body, $body);
+				$template->addFooter();
+
+				$message = $this->mailer->createMessage();
+				$message->setTo([$email => $displayName]);
+				$message->useTemplate($template);
+				$errors = $this->mailer->send($message);
+				if (!empty($errors)) {
+					throw new \RuntimeException('Email could not be sent. Check your mail server log');
+				}
+
+				return new DataResponse([
+					'data' => [ 'message' => 'Email Send!'],
+					'result' => true,
+				]);
+
+			} catch (\Exception $e) {
+				return new DataResponse([
+					'data' => [ 'message' => 'A problem occurred while sending the email. Please revise your settings. (Error: %s)', [$e->getMessage()]],
+					'result' => false,
+				]);
+			}
+		}
+		return new DataResponse([
+			'data' => [ 'message' => 'You need to set your user email before being able to send test emails.'],
+			'result' => false
+		]);
 	}
 }
