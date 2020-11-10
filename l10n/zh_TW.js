@@ -8,7 +8,7 @@ OC.L10N.register(
     "【NDCODFWEB】" : "編輯器端",
     "【Odfweb】"    : "儲存端",
     "Check" : "檢查",
-    "Checking..." : "檢查中...",
+    "Checking... Please Don't close this tab." : "檢查中，請勿關閉此分頁。",
     "Fail to get version." : "無法取得版本",
     "New version available, please update." : "有新版本，請更新。",
     "Using latest version" : "已經是最新版本，不需要更新。",

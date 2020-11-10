@@ -1,6 +1,6 @@
 $(document).on("click", "button#checkBtn", function (e) {
     // Set appconfig lastCheckTime
-    OC.msg.startAction($('.msg'), t('ndcversionstatus', 'Checking...'));
+    OC.msg.startAction($('.msg'), t('ndcversionstatus', 'Checking... Please Don\'t close this tab.'));
     $.ajax({
         url: OC.generateUrl('/apps/ndcversionstatus/setTime'),
         type: 'GET'
@@ -9,4 +9,4 @@ $(document).on("click", "button#checkBtn", function (e) {
         window.open('', '_self');
         f.submit();
     })
- });
+});
