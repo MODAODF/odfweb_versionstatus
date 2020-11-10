@@ -28,8 +28,8 @@ style('ndcversionstatus', 'index');
 
 	</ul>
 
-	<br />
-	<em><?php p($l->t('Email members of admin group about check result.')); ?></em>
-	<input type="submit" name="sendemail" id="sendemail" value="<?php p($l->t('Send email')); ?>"/>
-	<span class="msg"></span>
+	<br /><br />
+	<h3><?php p($l->t('Email members of admin group about check result: ')); ?></h3>
+	<div><span class="msg"></span></div>
+	<ul class="mailResult"></ul>
 </div>

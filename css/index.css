@@ -23,3 +23,17 @@
     color: #fff;
     background-color: #d2322d;
 }
+
+#ndcversionstatus .mailResult {
+    display: none;
+    border-radius: 10px;
+    background-color: #f3f3f3;
+    padding: 15px;
+    margin-top: 20px;
+    color: gray;
+}
+
+#ndcversionstatus .mailResult li {
+    margin-top: 10px;
+    margin-left: 20px;
+}

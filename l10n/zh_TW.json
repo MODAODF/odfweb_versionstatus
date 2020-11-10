@@ -10,7 +10,7 @@
     "Fail to get version." : "無法取得版本",
     "New version available, please update." : "有新版本，請更新。",
     "Using latest version" : "已經是最新版本，不需要更新。",
-    "Email members of admin group about check result." : "將檢查結果寄給所有管理員",
+    "Email members of admin group about check result: " : "將檢查結果寄給所有管理員: ",
     "Send email" : "寄出郵件",
     "Sending..." : "寄出中...",
     "Unable to sent email." : "無法寄出郵件",
