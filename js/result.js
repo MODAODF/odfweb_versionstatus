@@ -5,8 +5,9 @@ $(document).on("click", "#sendemail", function (e) {
     var msgResponse = {
 		status: '',
 		data: { message: '' }
-	}
+    }
 
+    OC.msg.startAction($('.msg'), t('ndcversionstatus', 'Sending...'));
     $.ajax({
         url: OC.generateUrl('/apps/ndcversionstatus/mail'),
         type: 'POST',
