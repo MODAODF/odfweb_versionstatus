@@ -63,7 +63,7 @@ class PageController extends Controller {
 	 */
 	private function getOdfwebVersion() {
 		try {
-			$version_odfweb = file_get_contents(\OC::$SERVERROOT.'/version-odfweb.txt');
+			$version_odfweb = @file_get_contents(\OC::$SERVERROOT.'/version-odfweb.txt');
 		} catch (Exception $e) { /*$e->getMessage();*/ }
 
 		if ($version_odfweb) {
@@ -133,7 +133,7 @@ class PageController extends Controller {
 	 * @param srting $updateInfo Get version result from odf.nat.gov.tw ex: odfweb=0&ndcodfweb=1
 	 * @return RedirectResponse|TemplateResponse
 	 */
-	public function result($updateInfo) {
+	public function result(string $updateInfo = '') {
 		if (!$updateInfo) {
 			return new RedirectResponse($this->urlGenerator->linkToRoute('ndcversionstatus.page.index'));
 		}
@@ -151,6 +151,10 @@ class PageController extends Controller {
 		}
 
 		foreach($this->versionParams as $key => $val) {
+			$parameters[$key]['msg']    = "";
+			$parameters[$key]['result'] = "";
+			$parameters[$key]['color']  = "gray";
+
 			// 版號訊息說明
 			$usingVersion = $val == "" ? $this->l10n->t('Unavailable') : $val;
 
@@ -163,14 +167,17 @@ class PageController extends Controller {
 			$parameters[$key]['msg'] = $stmt;
 
 			// 比較版號
-			if ( intval(str_replace(".", "", $latestVersion)) > 0 &&
-				intval(str_replace(".", "", $usingVersion)) > 0
-			) {
-				$needUpdate = str_replace(".", "", $latestVersion) > str_replace(".", "", $usingVersion); // boolean
+			$latestVersion = str_replace('.', '', $latestVersion);
+			$latestVersion = str_pad($latestVersion, 3, "0");
+
+			$usingVersion = str_replace('.', '', $usingVersion);
+			$usingVersion = str_pad($usingVersion, 3, "0");
+
+			if ( intval($latestVersion)  && intval($usingVersion) ) {
+				$needUpdate =  $latestVersion >  $usingVersion; // boolean
 				$parameters[$key]['result'] = $needUpdate ? $this->l10n->t('New version available, please update.') : $this->l10n->t('Using latest version');
 				$parameters[$key]['color'] = $needUpdate ? "red": 'green';
 			}
-
 		}
 
 		return new TemplateResponse('ndcversionstatus', 'result', $parameters);
