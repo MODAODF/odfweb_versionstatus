@@ -62,10 +62,7 @@ class PageController extends Controller {
 	 * 取得目前使用的 odfweb 版號
 	 */
 	private function getOdfwebVersion() {
-		try {
-			$version_odfweb = @file_get_contents(\OC::$SERVERROOT.'/version-odfweb.txt');
-		} catch (Exception $e) { /*$e->getMessage();*/ }
-
+		$version_odfweb = @file_get_contents(\OC::$SERVERROOT.'/version-odfweb.txt');
 		if ($version_odfweb) {
 			$this->versionParams['odfweb'] = preg_replace('/\r|\n/', '', $version_odfweb);
 		} else {
@@ -79,14 +76,10 @@ class PageController extends Controller {
 	private function getNdcodfwebVersion() {
 		$wopi_url = $this->config->getAppValue('richdocuments', 'wopi_url');
 		if ($wopi_url) {
-			try {
-				$response = file_get_contents($wopi_url . "/hosting/version");
-			} catch (Exception $e)  { /*$e->getMessage();*/ }
-
+			$response = @file_get_contents($wopi_url . "/hosting/version");
 			if ($response) {
 				$obj = json_decode($response);
 				if ($versionStr = $obj->loolserver->Version ?? $obj->OxOOL) {
-					// remove '-x' in version string
 					$pieces = explode("-", $versionStr);
 					$this->versionParams['ndcodfweb'] = $pieces[0];
 					return;
