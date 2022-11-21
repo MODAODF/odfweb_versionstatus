@@ -1,9 +1,9 @@
 { "translations": {
-    "Ndc Version Status" : "版本檢查",
+    "ODF Tools Version Status" : "版本檢查",
     "Last Time" : "上次檢查日期",
     "Version Infos" : "目前使用版本",
     "Version Check Result" : "檢查結果如下",
-    "【NDCODFWEB】" : "編輯器端",
+    "【MODAODFWEB】" : "編輯器端",
     "【Odfweb】"    : "儲存端",
     "Check" : "檢查",
     "Checking... Please Don't close this tab." : "檢查中，請勿關閉此分頁。",

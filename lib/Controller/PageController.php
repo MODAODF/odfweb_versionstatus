@@ -55,7 +55,7 @@ class PageController extends Controller {
 
 		$this->versionParams = null;
 		$this->getOdfwebVersion();
-		$this->getNdcodfwebVersion();
+		$this->getOnlineVersion();
 	}
 
 	/**
@@ -71,9 +71,9 @@ class PageController extends Controller {
 	}
 
 	/**
-	 * 取得目前使用的 ndcodfweb 版號
+	 * 取得目前使用的 modaodfweb 版號
 	 */
-	private function getNdcodfwebVersion() {
+	private function getOnlineVersion() {
 		$wopi_url = $this->config->getAppValue('richdocuments', 'wopi_url');
 		if ($wopi_url) {
 			$response = @file_get_contents($wopi_url . "/hosting/version");
@@ -81,12 +81,12 @@ class PageController extends Controller {
 				$obj = json_decode($response);
 				if ($versionStr = $obj->loolserver->Version ?? $obj->OxOOL) {
 					$pieces = explode("-", $versionStr);
-					$this->versionParams['ndcodfweb'] = $pieces[0];
+					$this->versionParams['modaodfweb'] = $pieces[0];
 					return;
 				}
 			}
 		}
-		$this->versionParams['ndcodfweb'] = "";
+		$this->versionParams['modaodfweb'] = "";
 	}
 
 	/**
@@ -123,7 +123,7 @@ class PageController extends Controller {
 	 *
 	 * 檢查結果頁面
 	 *
-	 * @param srting $updateInfo Get version result from odf.nat.gov.tw ex: odfweb=0&ndcodfweb=1
+	 * @param srting $updateInfo Get version result from odf.nat.gov.tw ex: odfweb=0&modaodfweb=1
 	 * @return RedirectResponse|TemplateResponse
 	 */
 	public function result(string $updateInfo = '') {

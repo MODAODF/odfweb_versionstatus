@@ -4,7 +4,7 @@ style('ndcversionstatus', 'index');
 ?>
 
 <div id="ndcversionstatus">
-	<h2><?php p($l->t('Ndc Version Status')) ?></h2>
+	<h2><?php p($l->t('ODF Tools Version Status')) ?></h2>
 	<h3><?php p($l->t('Version Check Result')) ?></h3>
 	<ul>
 
@@ -18,12 +18,12 @@ style('ndcversionstatus', 'index');
 		</li>
 		<?php }?>
 
-		<?php if (isset($_['ndcodfweb'])) { ?>
+		<?php if (isset($_['modaodfweb'])) { ?>
 		<li>
-			<b><?php p($l->t('【NDCODFWEB】'))?></b> -
-			<span><?php p($_['ndcodfweb']['msg']) ?> </span>
-			<span style="color:<?php p($_['ndcodfweb']['color']) ?> ;">
-				<?php p($_['ndcodfweb']['result']); ?>
+			<b><?php p($l->t('【MODAODFWEB】'))?></b> -
+			<span><?php p($_['modaodfweb']['msg']) ?> </span>
+			<span style="color:<?php p($_['modaodfweb']['color']) ?> ;">
+				<?php p($_['modaodfweb']['result']); ?>
 			</span>
 		</li>
 		<?php }?>

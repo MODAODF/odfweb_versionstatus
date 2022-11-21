@@ -1,6 +1,6 @@
 {
-    "name": "Ndc Version Status",
-    "description": "Check ndcodfweb &amp; odfweb version status",
+    "name": "ODF Tools Version Status",
+    "description": "Check ODF tools version status",
     "type": "project",
     "license": "AGPL",
     "authors": [

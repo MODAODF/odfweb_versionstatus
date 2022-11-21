@@ -1,4 +1,4 @@
-# Ndc Version Status
+# ODF Tools Version Status
 Place this app in **nextcloud/apps/**
 
 ## Building the app

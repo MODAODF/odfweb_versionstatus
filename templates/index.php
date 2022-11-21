@@ -5,7 +5,7 @@ style('ndcversionstatus', 'index');
 
 <div id="ndcversionstatus">
 
-	<h2><?php p($l->t('Ndc Version Status')) ?></h2>
+	<h2><?php p($l->t('ODF Tools Version Status')) ?></h2>
 
 	<?php if($_['lastCheckTime'] && !empty($_['lastCheckTime'])) { ?>
 		<span>（<?php p($l->t('Last Time'))?>: <?php p($_['lastCheckTime'])?>）</span>
@@ -17,13 +17,13 @@ style('ndcversionstatus', 'index');
 			<b><?php p($l->t('【Odfweb】'))?></b> - <span><?php p($_['odfweb'] ?? $l->t('Fail to get version.') )?></span>
 		</li>
 		<li>
-			<b><?php p($l->t('【NDCODFWEB】'))?></b> - <span><?php p($_['ndcodfweb'] ?? $l->t('Fail to get version.') )  ?></span>
+			<b><?php p($l->t('【MODAODFWEB】'))?></b> - <span><?php p($_['modaodfweb'] ?? $l->t('Fail to get version.') )  ?></span>
 		</li>
 	</ul>
 	<br>
 
 	<form id="hiddenForm" method="post" action="<?php p($_['redirectUrl']) ?>" >
-		<input type="hidden" name="ndcodfweb" value="<?php p($_['ndcodfweb']) ?>" />
+		<input type="hidden" name="modaodfweb" value="<?php p($_['modaodfweb']) ?>" />
 		<input type="hidden" name="odfweb" value="<?php p($_['odfweb']) ?>" />
 		<input type="hidden" name="odfwebReferrer" value="<?php p($_['odfwebReferrer'])?>" />
 	</form>
