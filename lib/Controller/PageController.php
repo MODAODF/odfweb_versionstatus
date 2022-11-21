@@ -75,6 +75,11 @@ class PageController extends Controller {
 	 */
 	private function getOnlineVersion() {
 		$wopi_url = $this->config->getAppValue('richdocuments', 'wopi_url');
+		$wopi_url = rtrim($wopi_url, "/");
+		if (!preg_match("~^(?:f|ht)tps?://~i", $wopi_url)) {
+			$wopi_url = "http://" . $wopi_url;
+		}
+
 		if ($wopi_url) {
 			$response = @file_get_contents($wopi_url . "/hosting/version");
 			if ($response) {
