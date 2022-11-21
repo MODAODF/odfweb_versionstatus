@@ -5,7 +5,7 @@
     <name>ODF Tools Version Status</name>
     <summary>Check ODF tools version status</summary>
     <description><![CDATA[Check ODF tools version status]]></description>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
     <licence>agpl</licence>
     <author mail="sharon.wu@ossii.com.tw" homepage="http://www.ossii.com.tw">sharon wu</author>
     <namespace>NdcVersionStatus</namespace>
