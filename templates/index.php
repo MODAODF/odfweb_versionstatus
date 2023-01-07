@@ -1,5 +1,4 @@
 <?php
-script('ndcversionstatus', 'index');
 style('ndcversionstatus', 'index');
 ?>
 
@@ -22,15 +21,7 @@ style('ndcversionstatus', 'index');
 	</ul>
 	<br>
 
-	<form id="hiddenForm" method="post" action="<?php p($_['redirectUrl']) ?>" >
-		<input type="hidden" name="modaodfweb" value="<?php p($_['modaodfweb']) ?>" />
-		<input type="hidden" name="odfweb" value="<?php p($_['odfweb']) ?>" />
-		<input type="hidden" name="odfwebReferrer" value="<?php p($_['odfwebReferrer'])?>" />
+	<form method="POST" action="<?php p($_['resultPage']) ?>" >
+		<button type="submit"><?php p($l->t('Check')) ?></button>
 	</form>
-
-	<?php if($_['showButton']){ ?>
-	<button id="checkBtn"><?php p($l->t('Check')) ?></button>
-	<span class="msg"></span>
-	<?php }?>
-
 </div>

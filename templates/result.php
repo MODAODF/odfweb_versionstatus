@@ -5,6 +5,10 @@ style('ndcversionstatus', 'index');
 
 <div id="ndcversionstatus">
 	<h2><?php p($l->t('ODF Tools Version Status')) ?></h2>
+	<?php if($_['lastCheckTime'] && !empty($_['lastCheckTime'])) { ?>
+		<span>（<?php p($l->t('Last Time'))?>: <?php p($_['lastCheckTime'])?>）</span>
+	<?php }?>
+
 	<h3><?php p($l->t('Version Check Result')) ?></h3>
 	<ul>
 

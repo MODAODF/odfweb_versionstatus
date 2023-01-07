@@ -1,4 +1,4 @@
-window.history.replaceState({}, "", OC.generateUrl('/apps/ndcversionstatus/result'));
+window.history.replaceState({}, "", OC.generateUrl('/apps/ndcversionstatus'));
 
 $(window).load(function() {
 

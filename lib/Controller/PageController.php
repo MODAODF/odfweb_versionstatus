@@ -6,7 +6,6 @@ use OCP\IRequest;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCP\AppFramework\Http\DataResponse;
-use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Controller;
 use OCP\IConfig;
 use OCP\IUserManager;
@@ -15,6 +14,18 @@ use OCP\IL10N;
 use OCP\Mail\IMailer;
 
 class PageController extends Controller {
+
+	// 新版號 API
+	private const NEW_VERSION_API = "https://odf.nat.gov.tw/versionStatus/api.php";
+
+	// 目前使用的元件版號來源
+	private const VERSION_PATH_ODFWEB = '/version-odfweb.txt'; // <odfweb>/version-odfweb.txt
+	private const VERSION_PATH_ONLINE = '/hosting/version'; // <wopi_url>/hosting/version
+
+	private $versionParams = array(
+		'odfweb' => '',
+		'modaodfweb' => ''
+	);
 
 	/** @var IConfig */
 	private $config;
@@ -34,8 +45,6 @@ class PageController extends Controller {
 	/** @var IL10N */
 	private $l10n;
 
-	const RedirectUrl = "https://odf.nat.gov.tw/versionStatus/update.php";
-
 	public function __construct($AppName,
 								IConfig $config,
 								IRequest $request,
@@ -53,7 +62,6 @@ class PageController extends Controller {
 		$this->mailer = $mailer;
 		$this->l10n = $l10n;
 
-		$this->versionParams = null;
 		$this->getOdfwebVersion();
 		$this->getOnlineVersion();
 	}
@@ -62,7 +70,7 @@ class PageController extends Controller {
 	 * 取得目前使用的 odfweb 版號
 	 */
 	private function getOdfwebVersion() {
-		$version_odfweb = @file_get_contents(\OC::$SERVERROOT.'/version-odfweb.txt');
+		$version_odfweb = @file_get_contents(\OC::$SERVERROOT . self::VERSION_PATH_ODFWEB);
 		if ($version_odfweb) {
 			$this->versionParams['odfweb'] = preg_replace('/\r|\n/', '', $version_odfweb);
 		} else {
@@ -81,7 +89,7 @@ class PageController extends Controller {
 		}
 
 		if ($wopi_url) {
-			$response = @file_get_contents($wopi_url . "/hosting/version");
+			$response = @file_get_contents($wopi_url . self::VERSION_PATH_ONLINE);
 			if ($response) {
 				$obj = json_decode($response);
 				if ($versionStr = $obj->loolserver->Version ?? $obj->OxOOL) {
@@ -102,24 +110,11 @@ class PageController extends Controller {
 	 * @return TemplateResponse
 	 */
 	public function index() {
-
-		// Prepare parameters for TemplateResponse
-		if (!is_null($this->versionParams)) {
-			foreach($this->versionParams as $key => $val) {
-				if ($val == "") {
-					$parameters[$key] = $this->l10n->t('Fail to get version.');
-				} else {
-					$parameters[$key] = $val;
-				}
-			}
-			$parameters['showButton'] = true;
+		foreach($this->versionParams as $item => $val) {
+			$parameters[$item] = (!$val || $val == '') ? null : $val;
 		}
-
-		$parameters['redirectUrl'] = self::RedirectUrl;
-		$parameters['odfwebReferrer'] = $this->urlGenerator->getAbsoluteURL('index.php/apps/ndcversionstatus/result/');
-		$parameters['lastCheckTime'] = $lastCheckTime = $this->config->getAppValue($this->appName, 'lastCheckTime', '');
-
-		$this->updateCSP();
+		$parameters['resultPage'] = $this->urlGenerator->linkToRoute('ndcversionstatus.page.result');
+		$parameters['lastCheckTime'] = $this->config->getAppValue($this->appName, 'lastCheckTime', '');
 		return new TemplateResponse('ndcversionstatus', 'index', $parameters);
 	}
 
@@ -128,57 +123,58 @@ class PageController extends Controller {
 	 *
 	 * 檢查結果頁面
 	 *
-	 * @param srting $updateInfo Get version result from odf.nat.gov.tw ex: odfweb=0&modaodfweb=1
 	 * @return RedirectResponse|TemplateResponse
 	 */
-	public function result(string $updateInfo = '') {
-		if (!$updateInfo) {
-			return new RedirectResponse($this->urlGenerator->linkToRoute('ndcversionstatus.page.index'));
-		}
+	public function result() {
+		$releasedVersions = $this->getNewVersion();
+		foreach($this->versionParams as $item => $val) {
+			$parameters[$item]['msg']    = "";
+			$parameters[$item]['result'] = "";
+			$parameters[$item]['color']  = "gray";
 
-		// 讀取 url 參數資料
-		$pieces = explode("&", $updateInfo);
-		foreach($pieces as $piece) {
-			$val = explode("=", $piece);
-			$name = $val[0];
-			if($name) {
-				$releasedVersions[$name] = $val[1];
-				// $needUpdate = $val[1] === '1' ? true : false;
-				// $parameters[$name] = $needUpdate;
-			}
-		}
-
-		foreach($this->versionParams as $key => $val) {
-			$parameters[$key]['msg']    = "";
-			$parameters[$key]['result'] = "";
-			$parameters[$key]['color']  = "gray";
-
-			// 版號訊息說明
-			$usingVersion = $val == "" ? $this->l10n->t('Unavailable') : $val;
-
-			if (!$releasedVersions[$key] || $releasedVersions[$key] === 'false') {
-				$latestVersion = $this->l10n->t('Unavailable');
+			// 版本說明
+			$usingVersion = (!$val || $val == "") ? null : $val;
+			if (!isset($releasedVersions[$item]) || $releasedVersions[$item] === 'false') {
+				$latestVersion = null;
 			} else {
-				$latestVersion = $releasedVersions[$key];
+				$latestVersion = $releasedVersions[$item];
 			}
-			$stmt = $this->l10n->t('Current version [ %1$s ], the latest version [ %2$s ].', [$usingVersion, $latestVersion]);
-			$parameters[$key]['msg'] = $stmt;
+			$stmt = $this->l10n->t(
+				'Current version [ %1$s ], the latest version [ %2$s ].', [
+				$usingVersion ?? $this->l10n->t('Unavailable'),
+				$latestVersion ?? $this->l10n->t('Unavailable')
+			]);
+			$parameters[$item]['msg'] = $stmt;
 
 			// 比較版號
-			$latestVersion = str_replace('.', '', $latestVersion);
-			$latestVersion = str_pad($latestVersion, 3, "0");
-
-			$usingVersion = str_replace('.', '', $usingVersion);
-			$usingVersion = str_pad($usingVersion, 3, "0");
-
-			if ( intval($latestVersion)  && intval($usingVersion) ) {
-				$needUpdate =  $latestVersion >  $usingVersion; // boolean
-				$parameters[$key]['result'] = $needUpdate ? $this->l10n->t('New version available, please update.') : $this->l10n->t('Using latest version');
-				$parameters[$key]['color'] = $needUpdate ? "red": 'green';
+			if ($usingVersion && $latestVersion) {
+				$needUpdate = version_compare($usingVersion, $latestVersion, '<');
+				$resStmt = $needUpdate ? 'New version available, please update.' : 'Using latest version';
+				$parameters[$item]['result'] = $this->l10n->t($resStmt);
+				$parameters[$item]['color'] = $needUpdate ? "red": 'green';
 			}
 		}
 
+		// 更新日期
+		$this->setTimeConfig();
+		$time = $this->config->getAppValue($this->appName, 'lastCheckTime', null);
+		if ($time) $parameters['lastCheckTime'] = $time;
+
 		return new TemplateResponse('ndcversionstatus', 'result', $parameters);
+	}
+
+	/**
+	 * 取得新版本資訊
+	 * @return array 各元件的最新版號
+	 */
+	private function getNewVersion() {
+		$opts = array("ssl" => array(
+				"verify_peer" => false,
+				"verify_peer_name" => false,
+			),
+		);
+		$versions = @file_get_contents(self::NEW_VERSION_API, false, stream_context_create($opts));
+		return json_decode($versions, true) ?? [];
 	}
 
 	/**
@@ -270,13 +266,4 @@ class PageController extends Controller {
 		}
 	}
 
-	/**
-	 * 設定 ContentSecurityPolicy
-	 */
-	private function updateCSP() {
-		$cspManager = \OC::$server->getContentSecurityPolicyManager();
-		$csp = new ContentSecurityPolicy();
-		$csp->addAllowedFormActionDomain(self::RedirectUrl);
-		$cspManager->addDefaultPolicy($csp);
-	}
 }
